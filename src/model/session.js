@@ -7,14 +7,15 @@ const insert_session = db.prepare(/*sql*/
   VALUES (
     $id,
     $user_id,
-    DATE ('now', '+7 days')
+    DATE('now', '+7 days')
   )`);
 
-function createSession(user_id) {
+function createSession(userId) {
   const sessionId = crypto.randomBytes(18).toString("base64");
+  console.log(`Inserting sessionId: ${sessionId} for user: ${userId}`);
   insert_session.run({
     id: sessionId,
-    user_id
+    user_id: userId
   });
   return sessionId;
 }
@@ -25,7 +26,9 @@ const select_session = db.prepare(`
 `);
 
 function getSession(sid) {
-  return select_session.get(sid);
+  const session = select_session.get(sid);
+  console.log(session);
+  return session;
 }
 
 const delete_session = db.prepare(`
