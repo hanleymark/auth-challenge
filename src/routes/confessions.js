@@ -15,18 +15,32 @@ function get(req, res) {
    * [4] Get the page owner from the URL params
    * [5] If the logged in user is not the page owner send a 401 response
    */
-  const sessionId = req.signedCookies.sid;
-  if (sessionId) {
-  const session = getSession(sessionId);
+
+  const session = req.session;
+  console.log(`Session in confessions.js: ${session}`);
+  if (!session) {
+    res.status(401).send("You can't view other people's secrets!");
+    return;
+  }
   const current_user = session.user_id;
   const page_owner = Number(req.params.user_id);
   if (current_user !== page_owner) {
     res.status(401).send("You can't view other people's secrets!");
+    return;
   }
-}
-else {
-  res.status(401).send("You can't view other people's secrets!");
-}
+
+  //   const sessionId = req.signedCookies.sid;
+  //   if (sessionId) {
+  //   const session = getSession(sessionId);
+  //   const current_user = session.user_id;
+  //   const page_owner = Number(req.params.user_id);
+  //   if (current_user !== page_owner) {
+  //     res.status(401).send("You can't view other people's secrets!");
+  //   }
+  // }
+  // else {
+  //   res.status(401).send("You can't view other people's secrets!");
+  // }
 
   const confessions = listConfessions(req.params.user_id);
   const title = "Your secrets";
@@ -65,17 +79,19 @@ function post(req, res) {
    * [4] Use the user ID to create the confession in the DB
    * [5] Redirect back to the logged in user's confession page
    */
-  let session;
+  let session = req.session;
   let current_user;
-  const sessionId = req.signedCookies.sid;
-  if (sessionId) {
-  session = getSession(sessionId);
-  current_user = session.user_id;
-}
-else {
-  res.status(401).send("You can't post other people's confessions!");
-  return;
-}
+
+  if (session) {
+    const sessionId = req.session.id;
+
+    if (sessionId) {
+      current_user = session.user_id;
+    }
+  } else {
+    res.status(401).send("You can't post confessions if you're not logged in!");
+    return;
+  }
   createConfession(req.body.content, current_user);
   res.redirect(`/confessions/${current_user}`);
   return;

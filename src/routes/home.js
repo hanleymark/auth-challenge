@@ -1,5 +1,5 @@
 const { Layout } = require("../templates.js");
-const { getSession, removeExpiredSessions} = require("../model/session.js");
+const { removeExpiredSessions} = require("../model/session.js");
 
 function get(req, res) {
   /**
@@ -12,18 +12,8 @@ function get(req, res) {
 
   removeExpiredSessions();
   //removeAllSessions();
-
-  const sessionId = req.signedCookies.sid;
-  console.log(`SessionId in home.js: ${sessionId}`);
-
-  let title;
-  let content;
-  let body;
-
-  const session = getSession(sessionId);
-
-  console.log(`Session in home.js: ${session}`);
-
+  let title, content, body;
+  const session = req.session;
   if (session) {
     // There is currently a valid session so offer logout
     const logoutForm = /*html*/ `

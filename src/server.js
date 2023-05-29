@@ -5,17 +5,41 @@ const signup = require("./routes/sign-up.js");
 const login = require("./routes/log-in.js");
 const logout = require("./routes/log-out.js");
 const confessions = require("./routes/confessions.js");
+const { getSession, removeExpiredSessions } = require("./model/session.js");
+const chalk = require("chalk");
 
 const body = express.urlencoded({ extended: false });
 const cookies = cookieParser(process.env.COOKIE_SECRET);
 
 const server = express();
 
+removeExpiredSessions();
+
 server.use((req, res, next) => {
   const time = new Date().toLocaleTimeString("en-GB");
   console.log(`${time} ${req.method} ${req.url}`);
   next();
 });
+
+server.use(cookies);
+
+// Stretch challenge: add a middleware function to check if the user is logged in
+server.use((req,res,next) => {
+  console.log("Middleware to check if user is logged in");
+
+  const sessionId = req.signedCookies.sid;
+
+    const session = getSession(sessionId);
+    
+    if (session) {
+      console.log(chalk.bgRed.white(`${session.user_id} is logged in. Writing session to req.session`));
+      req.session = session;
+    }
+
+  next();
+});
+
+
 server.use(cookies);
 server.get("/", home.get);
 server.get("/sign-up", signup.get);

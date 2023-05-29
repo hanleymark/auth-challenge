@@ -9,7 +9,7 @@ function post(req, res) {
    */
   console.log("log-out post handler");
 
-  const sessionId = req.signedCookies.sid;
+  const sessionId = req.session.id;
 
   console.log(`SessionId in log-out.js: ${sessionId}`);
 
