@@ -65,9 +65,20 @@ function post(req, res) {
    * [4] Use the user ID to create the confession in the DB
    * [5] Redirect back to the logged in user's confession page
    */
-  const current_user = Number(req.params.user_id);
+  let session;
+  let current_user;
+  const sessionId = req.signedCookies.sid;
+  if (sessionId) {
+  session = getSession(sessionId);
+  current_user = session.user_id;
+}
+else {
+  res.status(401).send("You can't post other people's confessions!");
+  return;
+}
   createConfession(req.body.content, current_user);
   res.redirect(`/confessions/${current_user}`);
+  return;
 }
 
 module.exports = { get, post };
