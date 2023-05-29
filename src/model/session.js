@@ -36,7 +36,24 @@ const delete_session = db.prepare(`
 `);
 
 function removeSession(sid) {
+  console.log(`Removing session: ${sid}`);
   return delete_session.run(sid);
 }
 
-module.exports = { createSession, getSession, removeSession };
+const delete_expired_sessions = db.prepare(`
+  DELETE FROM sessions WHERE expires_at < DATE('now')
+`);
+
+function removeExpiredSessions() {
+  return delete_expired_sessions.run();
+}
+
+const delete_all_sessions = db.prepare(`
+  DELETE FROM sessions
+`);
+
+function removeAllSessions() {
+  return delete_all_sessions.run();
+}
+
+module.exports = { createSession, getSession, removeSession, removeExpiredSessions, removeAllSessions };

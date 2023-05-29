@@ -1,3 +1,5 @@
+const { removeSession } = require("../model/session.js");
+
 function post(req, res) {
   /**
    * [1] Get the session ID from the cookie
@@ -5,7 +7,16 @@ function post(req, res) {
    * [3] Remove the session cookie
    * [4] Redirect back home
    */
-  res.status(500).send("");
-}
+  console.log("log-out post handler");
 
+  const sessionId = req.signedCookies.sid;
+
+  console.log(`SessionId in log-out.js: ${sessionId}`);
+
+  console.log(`Removing session ${sessionId}`);
+  removeSession(sessionId);
+  res.clearCookie("sid");
+  res.redirect("/");
+  //res.status(500).send("");
+}
 module.exports = { post };
