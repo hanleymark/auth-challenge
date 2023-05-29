@@ -3,6 +3,7 @@ const {
   createConfession,
 } = require("../model/confessions.js");
 const { Layout } = require("../templates.js");
+const { getSession } = require("../model/session.js");
 
 function get(req, res) {
   /**
@@ -14,6 +15,19 @@ function get(req, res) {
    * [4] Get the page owner from the URL params
    * [5] If the logged in user is not the page owner send a 401 response
    */
+  const sessionId = req.signedCookies.sid;
+  if (sessionId) {
+  const session = getSession(sessionId);
+  const current_user = session.user_id;
+  const page_owner = Number(req.params.user_id);
+  if (current_user !== page_owner) {
+    res.status(401).send("You can't view other people's secrets!");
+  }
+}
+else {
+  res.status(401).send("You can't view other people's secrets!");
+}
+
   const confessions = listConfessions(req.params.user_id);
   const title = "Your secrets";
   const content = /*html*/ `
